@@ -1,23 +1,35 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
 
+// Socket.io olmadan mock socket hook
 export function useSocket() {
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [socket, setSocket] = useState<any>(null);
 
   useEffect(() => {
-    const socketInstance = io('http://localhost:9002');
-    setSocket(socketInstance);
+    // Mock socket instance
+    const mockSocket = {
+      emit: (event: string, data?: any) => {
+        console.log('Mock socket emit:', event, data);
+      },
+      on: (event: string, callback: Function) => {
+        console.log('Mock socket on:', event);
+      },
+      disconnect: () => {
+        console.log('Mock socket disconnect');
+      }
+    };
+    
+    setSocket(mockSocket);
 
-    // Kullanıcı giriş bilgilerini gönder
+    // Kullanıcı giriş bilgilerini mock gönder
     const loggedUser = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
     if (loggedUser.id) {
-      socketInstance.emit('user-login', loggedUser);
+      mockSocket.emit('user-login', loggedUser);
     }
 
     return () => {
-      socketInstance.disconnect();
+      mockSocket.disconnect();
     };
   }, []);
 

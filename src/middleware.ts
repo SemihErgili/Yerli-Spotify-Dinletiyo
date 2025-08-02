@@ -5,7 +5,7 @@ export async function middleware(request: NextRequest) {
   // IP adresini al
   const forwarded = request.headers.get('x-forwarded-for');
   const realIP = request.headers.get('x-real-ip');
-  const ip = forwarded?.split(',')[0] || realIP || request.ip || '127.0.0.1';
+  const ip = forwarded?.split(',')[0] || realIP || '127.0.0.1';
   
   try {
     // Test için localhost IP'sini de kontrol et
