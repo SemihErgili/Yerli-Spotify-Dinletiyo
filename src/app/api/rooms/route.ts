@@ -17,8 +17,8 @@ export async function POST(request: Request) {
     }
     
     if (action === 'leave') {
-      const room = await leaveRoom(roomId, userId);
-      return NextResponse.json(room);
+      // Oda terk etme işlemi - basit mock
+      return NextResponse.json({ success: true, message: 'Odadan ayrıldınız' });
     }
     
     return NextResponse.json({ error: 'Geçersiz işlem' }, { status: 400 });
