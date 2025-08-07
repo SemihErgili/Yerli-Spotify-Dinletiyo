@@ -1,0 +1,10 @@
+{
+  "builds": [
+    { "src": "googled8e589b36b836b62.html", "use": "@vercel/static" },
+    { "src": "public/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/googled8e589b36b836b62.html", "dest": "/googled8e589b36b836b62.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
