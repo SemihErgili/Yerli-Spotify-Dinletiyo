@@ -1,4 +1,5 @@
 "use client";
+<meta name="google-site-verification" content="dREUMPILd7rgKGVZQppOZ5KNbCGm5jDAD02oAnhp4kE" />
 
 import { useEffect, useState } from 'react';
 import { SongCard } from "@/components/song-card";
