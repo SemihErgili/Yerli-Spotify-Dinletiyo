@@ -1,6 +1,4 @@
-import { MetadataRoute } from 'next'
-
-export default function sitemap(): MetadataRoute.Sitemap {
+export default function sitemap() {
   const lastModified = new Date().toISOString()
 
   return [
@@ -23,12 +21,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: 'https://dinletiyo.com/home',
-      lastModified,
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
       url: 'https://dinletiyo.com/gizlilik',
       lastModified,
       changeFrequency: 'yearly',
@@ -39,6 +31,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: 'yearly',
       priority: 0.3,
+    },
+    {
+      url: 'https://dinletiyo.com/destek',
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: 'https://dinletiyo.com/market',
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: 'https://dinletiyo.com/katil',
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
     },
   ]
 }
