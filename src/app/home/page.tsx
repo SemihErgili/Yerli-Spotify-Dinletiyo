@@ -153,6 +153,8 @@ export default function HomePage() {
       const onboardingKey = `onboarding-completed-${user.id}`;
       const preferencesKey = `user-preferences-${user.id}`;
       
+      console.log('Saving preferences for user:', user.id, preferences);
+      
       // Önce localStorage'da güncelle
       localStorage.setItem(onboardingKey, 'true');
       localStorage.setItem(preferencesKey, JSON.stringify(preferences));
@@ -161,7 +163,7 @@ export default function HomePage() {
       
       // Sunucu tarafında da güncelle
       try {
-        await fetch('/api/user-data', {
+        const response = await fetch('/api/user-data', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -171,6 +173,8 @@ export default function HomePage() {
             preferences: preferences
           }),
         });
+        const result = await response.json();
+        console.log('Server response:', result);
       } catch (error) {
         console.error('Kullanıcı tercihleri sunucuya kaydedilemedi:', error);
       }
