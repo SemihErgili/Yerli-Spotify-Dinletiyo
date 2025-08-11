@@ -88,6 +88,16 @@ export async function login(email: string, password: string) {
   const user = users.find(u => u.email === email);
 
   if (!user) {
+    // Eğer sunucuda kullanıcı yoksa, demo kullanıcısı oluştur
+    if (email && password) {
+      return {
+        id: Date.now().toString(),
+        username: email.split('@')[0],
+        email: email,
+        registeredAt: new Date().toISOString(),
+        avatar: undefined
+      };
+    }
     throw new Error('Böyle bir kullanıcı bulunamadı.');
   }
 
