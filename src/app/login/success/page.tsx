@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function LoginSuccessPage() {
+function LoginSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -14,11 +14,9 @@ export default function LoginSuccessPage() {
       try {
         const userData = JSON.parse(decodeURIComponent(userParam));
         
-        // Kullanıcı bilgilerini localStorage'a kaydet
         localStorage.setItem('currentUser', JSON.stringify(userData));
         sessionStorage.setItem('currentUser', JSON.stringify(userData));
         
-        // Ana sayfaya yönlendir
         router.push('/home');
       } catch (error) {
         console.error('User data parse error:', error);
@@ -36,5 +34,13 @@ export default function LoginSuccessPage() {
         <p className="text-muted-foreground">Lütfen bekleyin, ana sayfaya yönlendiriliyorsunuz.</p>
       </div>
     </div>
+  );
+}
+
+export default function LoginSuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginSuccessContent />
+    </Suspense>
   );
 }
