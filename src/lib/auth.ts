@@ -160,29 +160,21 @@ export async function getUserPreferences(userId: string) {
 
 export async function saveFavoriteSong(userId: string, song: Song) {
   const users = loadUsers();
-  let user = users.find(u => u.id === userId);
+  const user = users.find(u => u.id === userId);
   
-  // Eğer kullanıcı yoksa oluştur
   if (!user) {
-    user = {
-      id: userId,
-      username: 'Demo User',
-      email: 'demo@example.com',
-      password: 'demo',
-      registeredAt: new Date().toISOString(),
-      favorites: [],
-      recentlyPlayed: []
-    };
-    users.push(user);
+    throw new Error('Kullanıcı bulunamadı.');
   }
 
   if (!user.favorites) {
     user.favorites = [];
   }
   
+  // Şarkı zaten favorilerde var mı kontrol et
   const existingIndex = user.favorites.findIndex(s => s.id === song.id);
   
   if (existingIndex === -1) {
+    // Favorilere ekle
     user.favorites.push(song);
   }
   
@@ -212,7 +204,7 @@ export async function getFavoriteSongs(userId: string) {
   const user = users.find(u => u.id === userId);
   
   if (!user) {
-    return [];
+    throw new Error('Kullanıcı bulunamadı.');
   }
 
   return user.favorites || [];
@@ -220,34 +212,28 @@ export async function getFavoriteSongs(userId: string) {
 
 export async function addRecentlyPlayedSong(userId: string, song: Song) {
   const users = loadUsers();
-  let user = users.find(u => u.id === userId);
+  const user = users.find(u => u.id === userId);
   
-  // Eğer kullanıcı yoksa oluştur
   if (!user) {
-    user = {
-      id: userId,
-      username: 'Demo User',
-      email: 'demo@example.com',
-      password: 'demo',
-      registeredAt: new Date().toISOString(),
-      favorites: [],
-      recentlyPlayed: []
-    };
-    users.push(user);
+    throw new Error('Kullanıcı bulunamadı.');
   }
 
   if (!user.recentlyPlayed) {
     user.recentlyPlayed = [];
   }
   
+  // Şarkı zaten son çalınanlarda var mı kontrol et
   const existingIndex = user.recentlyPlayed.findIndex(s => s.id === song.id);
   
   if (existingIndex !== -1) {
+    // Varsa listeden kaldır (sonra başa eklenecek)
     user.recentlyPlayed.splice(existingIndex, 1);
   }
   
+  // Şarkıyı listenin başına ekle
   user.recentlyPlayed.unshift(song);
   
+  // Son çalınan şarkıları 20 ile sınırla
   if (user.recentlyPlayed.length > 20) {
     user.recentlyPlayed = user.recentlyPlayed.slice(0, 20);
   }
@@ -261,7 +247,7 @@ export async function getRecentlyPlayedSongs(userId: string) {
   const user = users.find(u => u.id === userId);
   
   if (!user) {
-    return [];
+    throw new Error('Kullanıcı bulunamadı.');
   }
 
   return user.recentlyPlayed || [];
