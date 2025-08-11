@@ -159,34 +159,34 @@ export async function getUserPreferences(userId: string) {
 }
 
 export async function saveFavoriteSong(userId: string, song: Song) {
-  // localStorage'a kaydet
-  if (typeof window !== 'undefined') {
-    const currentFavorites = localStorage.getItem(`favorites-${userId}`);
-    const favorites = currentFavorites ? JSON.parse(currentFavorites) : [];
-    
-    if (!favorites.find((s: Song) => s.id === song.id)) {
-      favorites.push(song);
-      localStorage.setItem(`favorites-${userId}`, JSON.stringify(favorites));
-    }
+  const users = loadUsers();
+  let user = users.find(u => u.id === userId);
+  
+  // Eğer kullanıcı yoksa oluştur
+  if (!user) {
+    user = {
+      id: userId,
+      username: 'Demo User',
+      email: 'demo@example.com',
+      password: 'demo',
+      registeredAt: new Date().toISOString(),
+      favorites: [],
+      recentlyPlayed: []
+    };
+    users.push(user);
+  }
+
+  if (!user.favorites) {
+    user.favorites = [];
   }
   
-  // Server'a da kaydetmeye çalış
-  try {
-    const users = loadUsers();
-    const user = users.find(u => u.id === userId);
-    
-    if (user) {
-      if (!user.favorites) user.favorites = [];
-      const existingIndex = user.favorites.findIndex(s => s.id === song.id);
-      if (existingIndex === -1) {
-        user.favorites.push(song);
-        saveUsers(users);
-      }
-    }
-  } catch (error) {
-    console.error('Server save favorite error:', error);
+  const existingIndex = user.favorites.findIndex(s => s.id === song.id);
+  
+  if (existingIndex === -1) {
+    user.favorites.push(song);
   }
   
+  saveUsers(users);
   return { success: true, message: 'Şarkı favorilere eklendi.' };
 }
 
@@ -208,88 +208,63 @@ export async function removeFavoriteSong(userId: string, songId: string) {
 }
 
 export async function getFavoriteSongs(userId: string) {
-  try {
-    const users = loadUsers();
-    const user = users.find(u => u.id === userId);
-    
-    if (user && user.favorites) {
-      return user.favorites;
-    }
-  } catch (error) {
-    console.error('Server favorites error:', error);
-  }
+  const users = loadUsers();
+  const user = users.find(u => u.id === userId);
   
-  // Fallback to localStorage
-  if (typeof window !== 'undefined') {
-    const localFavorites = localStorage.getItem(`favorites-${userId}`);
-    return localFavorites ? JSON.parse(localFavorites) : [];
+  if (!user) {
+    return [];
   }
-  
-  return [];
+
+  return user.favorites || [];
 }
 
 export async function addRecentlyPlayedSong(userId: string, song: Song) {
-  // localStorage'a kaydet
-  if (typeof window !== 'undefined') {
-    const currentRecent = localStorage.getItem(`recentlyPlayed-${userId}`);
-    const recentlyPlayed = currentRecent ? JSON.parse(currentRecent) : [];
-    
-    const existingIndex = recentlyPlayed.findIndex((s: Song) => s.id === song.id);
-    if (existingIndex !== -1) {
-      recentlyPlayed.splice(existingIndex, 1);
-    }
-    
-    recentlyPlayed.unshift(song);
-    if (recentlyPlayed.length > 20) {
-      recentlyPlayed.splice(20);
-    }
-    
-    localStorage.setItem(`recentlyPlayed-${userId}`, JSON.stringify(recentlyPlayed));
+  const users = loadUsers();
+  let user = users.find(u => u.id === userId);
+  
+  // Eğer kullanıcı yoksa oluştur
+  if (!user) {
+    user = {
+      id: userId,
+      username: 'Demo User',
+      email: 'demo@example.com',
+      password: 'demo',
+      registeredAt: new Date().toISOString(),
+      favorites: [],
+      recentlyPlayed: []
+    };
+    users.push(user);
+  }
+
+  if (!user.recentlyPlayed) {
+    user.recentlyPlayed = [];
   }
   
-  // Server'a da kaydetmeye çalış
-  try {
-    const users = loadUsers();
-    const user = users.find(u => u.id === userId);
-    
-    if (user) {
-      if (!user.recentlyPlayed) user.recentlyPlayed = [];
-      const existingIndex = user.recentlyPlayed.findIndex(s => s.id === song.id);
-      if (existingIndex !== -1) {
-        user.recentlyPlayed.splice(existingIndex, 1);
-      }
-      user.recentlyPlayed.unshift(song);
-      if (user.recentlyPlayed.length > 20) {
-        user.recentlyPlayed = user.recentlyPlayed.slice(0, 20);
-      }
-      saveUsers(users);
-    }
-  } catch (error) {
-    console.error('Server save recent error:', error);
+  const existingIndex = user.recentlyPlayed.findIndex(s => s.id === song.id);
+  
+  if (existingIndex !== -1) {
+    user.recentlyPlayed.splice(existingIndex, 1);
   }
   
+  user.recentlyPlayed.unshift(song);
+  
+  if (user.recentlyPlayed.length > 20) {
+    user.recentlyPlayed = user.recentlyPlayed.slice(0, 20);
+  }
+  
+  saveUsers(users);
   return { success: true, message: 'Son çalınan şarkı eklendi.' };
 }
 
 export async function getRecentlyPlayedSongs(userId: string) {
-  try {
-    const users = loadUsers();
-    const user = users.find(u => u.id === userId);
-    
-    if (user && user.recentlyPlayed) {
-      return user.recentlyPlayed;
-    }
-  } catch (error) {
-    console.error('Server recently played error:', error);
-  }
+  const users = loadUsers();
+  const user = users.find(u => u.id === userId);
   
-  // Fallback to localStorage
-  if (typeof window !== 'undefined') {
-    const localRecent = localStorage.getItem(`recentlyPlayed-${userId}`);
-    return localRecent ? JSON.parse(localRecent) : [];
+  if (!user) {
+    return [];
   }
-  
-  return [];
+
+  return user.recentlyPlayed || [];
 }
 
 // Kullanıcıları export et (API endpoint için)
