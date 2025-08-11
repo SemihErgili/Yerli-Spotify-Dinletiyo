@@ -10,6 +10,7 @@ interface User {
   email: string;
   password: string;
   registeredAt: string;
+  avatar?: string;
   preferences?: UserPreferences;
   favorites?: Song[];
   recentlyPlayed?: Song[];
@@ -98,11 +99,12 @@ export async function login(email: string, password: string) {
     id: user.id, 
     username: user.username, 
     email: user.email,
-    registeredAt: user.registeredAt
+    registeredAt: user.registeredAt,
+    avatar: user.avatar
   };
 }
 
-export async function updateProfile(userId: string, data: { username?: string }) {
+export async function updateProfile(userId: string, data: { username?: string; avatar?: string }) {
   const users = loadUsers();
   const user = users.find(u => u.id === userId);
   
@@ -114,8 +116,12 @@ export async function updateProfile(userId: string, data: { username?: string })
     user.username = data.username;
   }
 
+  if (data.avatar !== undefined) {
+    user.avatar = data.avatar;
+  }
+
   saveUsers(users);
-  return { id: user.id, username: user.username, email: user.email, registeredAt: user.registeredAt };
+  return { id: user.id, username: user.username, email: user.email, registeredAt: user.registeredAt, avatar: user.avatar };
 }
 
 export async function saveUserPreferences(userId: string, preferences: UserPreferences) {
