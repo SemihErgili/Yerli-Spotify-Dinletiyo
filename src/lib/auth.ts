@@ -159,26 +159,34 @@ export async function getUserPreferences(userId: string) {
 }
 
 export async function saveFavoriteSong(userId: string, song: Song) {
-  const users = loadUsers();
-  const user = users.find(u => u.id === userId);
-  
-  if (!user) {
-    throw new Error('Kullanıcı bulunamadı.');
-  }
-
-  if (!user.favorites) {
-    user.favorites = [];
-  }
-  
-  // Şarkı zaten favorilerde var mı kontrol et
-  const existingIndex = user.favorites.findIndex(s => s.id === song.id);
-  
-  if (existingIndex === -1) {
-    // Favorilere ekle
-    user.favorites.push(song);
+  // localStorage'a kaydet
+  if (typeof window !== 'undefined') {
+    const currentFavorites = localStorage.getItem(`favorites-${userId}`);
+    const favorites = currentFavorites ? JSON.parse(currentFavorites) : [];
+    
+    if (!favorites.find((s: Song) => s.id === song.id)) {
+      favorites.push(song);
+      localStorage.setItem(`favorites-${userId}`, JSON.stringify(favorites));
+    }
   }
   
-  saveUsers(users);
+  // Server'a da kaydetmeye çalış
+  try {
+    const users = loadUsers();
+    const user = users.find(u => u.id === userId);
+    
+    if (user) {
+      if (!user.favorites) user.favorites = [];
+      const existingIndex = user.favorites.findIndex(s => s.id === song.id);
+      if (existingIndex === -1) {
+        user.favorites.push(song);
+        saveUsers(users);
+      }
+    }
+  } catch (error) {
+    console.error('Server save favorite error:', error);
+  }
+  
   return { success: true, message: 'Şarkı favorilere eklendi.' };
 }
 
@@ -200,57 +208,88 @@ export async function removeFavoriteSong(userId: string, songId: string) {
 }
 
 export async function getFavoriteSongs(userId: string) {
-  const users = loadUsers();
-  const user = users.find(u => u.id === userId);
-  
-  if (!user) {
-    throw new Error('Kullanıcı bulunamadı.');
+  try {
+    const users = loadUsers();
+    const user = users.find(u => u.id === userId);
+    
+    if (user && user.favorites) {
+      return user.favorites;
+    }
+  } catch (error) {
+    console.error('Server favorites error:', error);
   }
-
-  return user.favorites || [];
+  
+  // Fallback to localStorage
+  if (typeof window !== 'undefined') {
+    const localFavorites = localStorage.getItem(`favorites-${userId}`);
+    return localFavorites ? JSON.parse(localFavorites) : [];
+  }
+  
+  return [];
 }
 
 export async function addRecentlyPlayedSong(userId: string, song: Song) {
-  const users = loadUsers();
-  const user = users.find(u => u.id === userId);
-  
-  if (!user) {
-    throw new Error('Kullanıcı bulunamadı.');
-  }
-
-  if (!user.recentlyPlayed) {
-    user.recentlyPlayed = [];
-  }
-  
-  // Şarkı zaten son çalınanlarda var mı kontrol et
-  const existingIndex = user.recentlyPlayed.findIndex(s => s.id === song.id);
-  
-  if (existingIndex !== -1) {
-    // Varsa listeden kaldır (sonra başa eklenecek)
-    user.recentlyPlayed.splice(existingIndex, 1);
-  }
-  
-  // Şarkıyı listenin başına ekle
-  user.recentlyPlayed.unshift(song);
-  
-  // Son çalınan şarkıları 20 ile sınırla
-  if (user.recentlyPlayed.length > 20) {
-    user.recentlyPlayed = user.recentlyPlayed.slice(0, 20);
+  // localStorage'a kaydet
+  if (typeof window !== 'undefined') {
+    const currentRecent = localStorage.getItem(`recentlyPlayed-${userId}`);
+    const recentlyPlayed = currentRecent ? JSON.parse(currentRecent) : [];
+    
+    const existingIndex = recentlyPlayed.findIndex((s: Song) => s.id === song.id);
+    if (existingIndex !== -1) {
+      recentlyPlayed.splice(existingIndex, 1);
+    }
+    
+    recentlyPlayed.unshift(song);
+    if (recentlyPlayed.length > 20) {
+      recentlyPlayed.splice(20);
+    }
+    
+    localStorage.setItem(`recentlyPlayed-${userId}`, JSON.stringify(recentlyPlayed));
   }
   
-  saveUsers(users);
+  // Server'a da kaydetmeye çalış
+  try {
+    const users = loadUsers();
+    const user = users.find(u => u.id === userId);
+    
+    if (user) {
+      if (!user.recentlyPlayed) user.recentlyPlayed = [];
+      const existingIndex = user.recentlyPlayed.findIndex(s => s.id === song.id);
+      if (existingIndex !== -1) {
+        user.recentlyPlayed.splice(existingIndex, 1);
+      }
+      user.recentlyPlayed.unshift(song);
+      if (user.recentlyPlayed.length > 20) {
+        user.recentlyPlayed = user.recentlyPlayed.slice(0, 20);
+      }
+      saveUsers(users);
+    }
+  } catch (error) {
+    console.error('Server save recent error:', error);
+  }
+  
   return { success: true, message: 'Son çalınan şarkı eklendi.' };
 }
 
 export async function getRecentlyPlayedSongs(userId: string) {
-  const users = loadUsers();
-  const user = users.find(u => u.id === userId);
-  
-  if (!user) {
-    throw new Error('Kullanıcı bulunamadı.');
+  try {
+    const users = loadUsers();
+    const user = users.find(u => u.id === userId);
+    
+    if (user && user.recentlyPlayed) {
+      return user.recentlyPlayed;
+    }
+  } catch (error) {
+    console.error('Server recently played error:', error);
   }
-
-  return user.recentlyPlayed || [];
+  
+  // Fallback to localStorage
+  if (typeof window !== 'undefined') {
+    const localRecent = localStorage.getItem(`recentlyPlayed-${userId}`);
+    return localRecent ? JSON.parse(localRecent) : [];
+  }
+  
+  return [];
 }
 
 // Kullanıcıları export et (API endpoint için)
