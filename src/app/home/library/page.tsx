@@ -12,10 +12,14 @@ export default function LibraryPage() {
 
   useEffect(() => {
     const loadLocalData = () => {
-      const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
-      const recent = JSON.parse(localStorage.getItem('recently-played') || '[]');
-      setFavorites(favs);
-      setRecentlyPlayed(recent.slice(0, 20));
+      const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+      if (currentUser) {
+        const userData = JSON.parse(currentUser);
+        const favs = JSON.parse(localStorage.getItem(`favorites-${userData.id}`) || '[]');
+        const recent = JSON.parse(localStorage.getItem(`recently-played-${userData.id}`) || '[]');
+        setFavorites(favs);
+        setRecentlyPlayed(recent.slice(0, 20));
+      }
     };
     
     const loadServerData = async () => {
@@ -31,7 +35,7 @@ export default function LibraryPage() {
             if (favoritesData.favorites && Array.isArray(favoritesData.favorites)) {
               setFavorites(favoritesData.favorites);
               // Sunucudan gelen favori şarkıları localStorage ile senkronize et
-              localStorage.setItem('favorites', JSON.stringify(favoritesData.favorites));
+              localStorage.setItem(`favorites-${userData.id}`, JSON.stringify(favoritesData.favorites));
             }
           }
           
@@ -42,7 +46,7 @@ export default function LibraryPage() {
             if (recentlyPlayedData.recentlyPlayed && Array.isArray(recentlyPlayedData.recentlyPlayed)) {
               setRecentlyPlayed(recentlyPlayedData.recentlyPlayed.slice(0, 20));
               // Sunucudan gelen son çalınan şarkıları localStorage ile senkronize et
-              localStorage.setItem('recently-played', JSON.stringify(recentlyPlayedData.recentlyPlayed));
+              localStorage.setItem(`recently-played-${userData.id}`, JSON.stringify(recentlyPlayedData.recentlyPlayed));
             }
           }
         }
