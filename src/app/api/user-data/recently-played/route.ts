@@ -6,14 +6,14 @@ export async function GET(request: NextRequest) {
   try {
     const userId = request.nextUrl.searchParams.get('userId');
     
-    if (!userId) {
-      return NextResponse.json({ error: 'Kullanıcı ID gerekli' }, { status: 400 });
+    if (!userId || userId === 'undefined') {
+      return NextResponse.json({ recentlyPlayed: [] });
     }
     
     const recentlyPlayed = await getRecentlyPlayedSongs(userId);
     return NextResponse.json({ recentlyPlayed });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ recentlyPlayed: [] });
   }
 }
 
