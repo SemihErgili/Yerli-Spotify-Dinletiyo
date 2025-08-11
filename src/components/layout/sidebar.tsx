@@ -18,16 +18,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SimpleYoutubeSearch } from "@/components/simple-youtube-search";
+import { getPlaylists, Playlist } from "@/lib/data";
 import { useEffect, useState } from "react";
 
 const navLinks = [
   { href: "/home", label: "Ana Sayfa", icon: Home },
   { href: "/home/library", label: "Kitaplığın", icon: Library },
   { href: "/home/playlists", label: "Playlistler", icon: ListMusic },
-];
-
-const playlists = [
-  "Türkçe Pop Hits", "80'ler Rock", "Akustik Akşamlar", "Haftanın Keşifleri", "Antrenman Modu", "Yolculuk Şarkıları", "Odaklanma Zamanı", "Chillout Lounge", "Türkçe Rap"
 ];
 
 interface LoggedInUser {
@@ -41,6 +38,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<LoggedInUser | null>(null);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
 
   useEffect(() => {
     const updateUser = () => {
@@ -64,6 +62,18 @@ export function Sidebar() {
     return () => {
       window.removeEventListener('storage', updateUser);
     };
+  }, []);
+
+  useEffect(() => {
+    const loadPlaylists = async () => {
+      try {
+        const data = await getPlaylists();
+        setPlaylists(data);
+      } catch (error) {
+        console.error('Playlist yüklenirken hata:', error);
+      }
+    };
+    loadPlaylists();
   }, []);
 
   const handleLogout = () => {
@@ -111,11 +121,14 @@ export function Sidebar() {
           <div className="space-y-1 pr-2">
             {playlists.map((playlist) => (
               <Button
-                key={playlist}
+                key={playlist.id}
                 variant="ghost"
                 className="w-full justify-start truncate font-normal"
+                asChild
               >
-                {playlist}
+                <Link href={`/home/playlist/${playlist.id}`}>
+                  {playlist.title}
+                </Link>
               </Button>
             ))}
           </div>
