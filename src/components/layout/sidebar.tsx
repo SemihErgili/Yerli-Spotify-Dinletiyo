@@ -47,8 +47,8 @@ export function Sidebar() {
         const userData = JSON.parse(currentUser);
         setUser({
           id: userData.id,
-          username: userData.username || userData.email.split('@')[0],
-          email: userData.email,
+          username: userData.username || (userData.email ? userData.email.split('@')[0] : 'Kullanıcı'),
+          email: userData.email || '',
           avatar: userData.avatar
         });
       } else {

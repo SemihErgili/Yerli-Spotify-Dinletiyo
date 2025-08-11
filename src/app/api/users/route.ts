@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const users = getUsers();
+    const users = await getUsers();
     return NextResponse.json({ users });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
