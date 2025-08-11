@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { Home, Library, Plus, User, LogOut, Settings, Users, ListMusic } from "lucide-react";
+import { Home, Search, Library, Plus, User, LogOut, Settings, Users, ListMusic } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
@@ -99,11 +99,6 @@ export function Sidebar() {
           ))}
         </ul>
       </nav>
-
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-muted-foreground px-2">Ara</h3>
-        <SimpleYoutubeSearch />
-      </div>
 
       <div className="flex-1 flex flex-col min-h-0 bg-secondary/30 rounded-lg p-2">
         <div className="flex items-center justify-between mb-2 px-2">
