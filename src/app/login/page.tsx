@@ -93,6 +93,7 @@ export default function LoginPage() {
       const userData = await response.json();
       
       // Kullanıcı bilgilerini sakla
+      localStorage.setItem('loggedInUser', JSON.stringify(userData));
       localStorage.setItem('currentUser', JSON.stringify(userData));
       sessionStorage.setItem('currentUser', JSON.stringify(userData));
       

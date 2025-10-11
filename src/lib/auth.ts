@@ -90,13 +90,14 @@ export async function login(email: string, password: string) {
   if (!user) {
     // Eğer sunucuda kullanıcı yoksa, demo kullanıcısı oluştur
     if (email && password) {
-      return {
+      const newUser = {
         id: Date.now().toString(),
         username: email.split('@')[0],
         email: email,
         registeredAt: new Date().toISOString(),
         avatar: undefined
       };
+      return newUser;
     }
     throw new Error('Böyle bir kullanıcı bulunamadı.');
   }
