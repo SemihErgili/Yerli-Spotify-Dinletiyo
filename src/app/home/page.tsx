@@ -21,6 +21,90 @@ interface Video {
   position: number;
 }
 
+function RecommendedSongs({ userPreferences }: { userPreferences: { artists: string[], genres: string[] } }) {
+  const [songs, setSongs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadRecommendedSongs = async () => {
+      try {
+        const allSongs = [];
+        
+        // Kullanıcının beğendiği sanatçılardan şarkılar getir
+        for (const artist of userPreferences.artists.slice(0, 3)) {
+          try {
+            const response = await fetch(`/api/youtube-scrape?q=${encodeURIComponent(artist + ' en iyi şarkıları')}`);
+            const data = await response.json();
+            
+            if (data.videos && data.videos.length > 0) {
+              const artistSongs = data.videos.slice(0, 4)
+                .filter((video: any) => video.title && video.id && video.thumbnail)
+                .map((video: any) => ({
+                  id: video.id,
+                  title: video.title,
+                  artist: artist,
+                  album: '',
+                  duration: video.duration || '0:00',
+                  imageUrl: video.thumbnail,
+                  audioUrl: video.id
+                }));
+              allSongs.push(...artistSongs);
+            }
+          } catch (error) {
+            console.error(`${artist} için şarkılar yüklenemedi:`, error);
+          }
+        }
+        
+        setSongs(allSongs);
+      } catch (error) {
+        console.error('Önerilen şarkılar yüklenemedi:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRecommendedSongs();
+  }, [userPreferences]);
+
+  if (loading) {
+    return (
+      <section>
+        <h2 className="text-2xl font-semibold tracking-tight mb-4">Senin İçin Önerilen Şarkılar</h2>
+        <div className="text-center py-8">Yükleniyor...</div>
+      </section>
+    );
+  }
+
+  if (songs.length === 0) {
+    return null;
+  }
+
+  return (
+    <section>
+      <h2 className="text-2xl font-semibold tracking-tight mb-4">Senin İçin Önerilen Şarkılar</h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+        {songs.map((song) => (
+          <div 
+            key={song.id}
+            onClick={() => {
+              const songWithPlaylist = { ...song, playlist: songs };
+              window.dispatchEvent(new CustomEvent('playSong', { detail: songWithPlaylist }));
+            }}
+            className="cursor-pointer group w-full overflow-hidden border-0 bg-secondary/30 hover:bg-secondary/60 transition-colors relative rounded-lg p-3"
+          >
+            <img src={song.imageUrl} alt={song.title} className="w-full aspect-square object-cover rounded-lg mb-3" />
+            <p className="text-base font-semibold truncate">{song.title}</p>
+            <p className="text-sm truncate text-muted-foreground">{song.artist}</p>
+            <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+              {song.duration}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function PlaylistSection({ title, fetchData, userPreferences }: { 
   title: string; 
   fetchData: () => Promise<Playlist[]>;
@@ -213,13 +297,10 @@ export default function HomePage() {
         <SimpleYoutubeSearch />
       </div>
 
-
-
-
-
-
-      
-
+      {/* Kullanıcı tercihlerine göre şarkı önerileri */}
+      {userPreferences && userPreferences.artists.length > 0 && (
+        <RecommendedSongs userPreferences={userPreferences} />
+      )}
       
       <PlaylistSection title="Senin için Derlendi" fetchData={() => getMadeForYou(6)} userPreferences={userPreferences} />
       <PlaylistSection title="Yeni Çıkanlar" fetchData={() => getNewReleases(6)} userPreferences={userPreferences} />

@@ -25,6 +25,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Logo } from '@/components/logo';
 
 import { Loader2 } from 'lucide-react';
@@ -34,6 +35,7 @@ import { useToast } from '@/hooks/use-toast';
 const formSchema = z.object({
   email: z.string().email({ message: 'Geçerli bir e-posta adresi girin.' }),
   password: z.string().min(1, { message: 'Şifre boş olamaz.' }),
+  rememberMe: z.boolean().default(false),
 });
 
 export default function LoginPage() {
@@ -46,6 +48,7 @@ export default function LoginPage() {
     defaultValues: {
       email: '',
       password: '',
+      rememberMe: false,
     },
   });
 
@@ -92,10 +95,15 @@ export default function LoginPage() {
       
       const userData = await response.json();
       
-      // Kullanıcı bilgilerini sakla
-      localStorage.setItem('loggedInUser', JSON.stringify(userData));
-      localStorage.setItem('currentUser', JSON.stringify(userData));
-      sessionStorage.setItem('currentUser', JSON.stringify(userData));
+      // Kullanıcı bilgilerini sakla - Beni Hatırla seçeneğine göre
+      if (values.rememberMe) {
+        localStorage.setItem('currentUser', JSON.stringify(userData));
+        localStorage.setItem('rememberMe', 'true');
+      } else {
+        sessionStorage.setItem('currentUser', JSON.stringify(userData));
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('rememberMe');
+      }
       
       // Kullanıcı tercihlerini yükle
       const preferencesKey = `user-preferences-${userData.id}`;
@@ -168,6 +176,24 @@ export default function LoginPage() {
                       />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="rememberMe"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-3 space-y-0 py-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        className="border-2"
+                      />
+                    </FormControl>
+                    <FormLabel className="text-sm font-medium cursor-pointer">
+                      Beni hatırla
+                    </FormLabel>
                   </FormItem>
                 )}
               />

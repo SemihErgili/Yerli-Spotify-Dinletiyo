@@ -23,6 +23,7 @@ export function Logo({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
             xmlns="http://www.w3.org/2000/svg"
             className="text-primary"
             aria-hidden="true"
+            suppressHydrationWarning
           >
             <path
               d="M19.5 13.3045C18.3312 14.331 16.8285 15 15.202 15C11.2241 15 8 11.7759 8 7.798C8 6.17148 8.66904 4.66878 9.69553 3.5C6.46473 4.96102 4 7.95703 4 11.5C4 16.1944 7.80558 20 12.5 20C16.043 20 18.961 17.5353 20 14.5C19.829 14.093 19.6633 13.6965 19.5 13.3045Z"
@@ -30,6 +31,7 @@ export function Logo({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              suppressHydrationWarning
             />
           </svg>
         </div>

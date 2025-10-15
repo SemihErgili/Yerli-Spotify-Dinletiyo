@@ -15,8 +15,8 @@ export default function LibraryPage() {
       const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
       if (currentUser) {
         const userData = JSON.parse(currentUser);
-        const favs = JSON.parse(localStorage.getItem(`favorites-${userData.id}`) || '[]');
-        const recent = JSON.parse(localStorage.getItem(`recently-played-${userData.id}`) || '[]');
+        const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
+        const recent = JSON.parse(localStorage.getItem('recently-played') || '[]');
         setFavorites(favs);
         setRecentlyPlayed(recent.slice(0, 20));
       }
@@ -35,7 +35,7 @@ export default function LibraryPage() {
             if (favoritesData.favorites && Array.isArray(favoritesData.favorites)) {
               setFavorites(favoritesData.favorites);
               // Sunucudan gelen favori şarkıları localStorage ile senkronize et
-              localStorage.setItem(`favorites-${userData.id}`, JSON.stringify(favoritesData.favorites));
+              localStorage.setItem('favorites', JSON.stringify(favoritesData.favorites));
             }
           }
           
@@ -46,7 +46,7 @@ export default function LibraryPage() {
             if (recentlyPlayedData.recentlyPlayed && Array.isArray(recentlyPlayedData.recentlyPlayed)) {
               setRecentlyPlayed(recentlyPlayedData.recentlyPlayed.slice(0, 20));
               // Sunucudan gelen son çalınan şarkıları localStorage ile senkronize et
-              localStorage.setItem(`recently-played-${userData.id}`, JSON.stringify(recentlyPlayedData.recentlyPlayed));
+              localStorage.setItem('recently-played', JSON.stringify(recentlyPlayedData.recentlyPlayed));
             }
           }
         }
@@ -91,14 +91,14 @@ export default function LibraryPage() {
   };
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
       <div>
-        <h1 className="font-headline text-4xl font-bold mb-2">Favoriler</h1>
-        <p className="text-muted-foreground text-lg">Beğendiğin ve dinlediğin şarkılar.</p>
+        <h1 className="font-headline text-2xl lg:text-4xl font-bold mb-2">Kitaplığın</h1>
+        <p className="text-muted-foreground text-sm lg:text-lg">Beğendiğin ve dinlediğin şarkılar.</p>
       </div>
 
-      {/* Üst Reklam Carousel */}
-      <section className="mt-8">
+      {/* Üst Reklam Carousel - Sadece desktop */}
+      <section className="mt-8 hidden lg:block">
         <AdCarousel
           variant="horizontal"
           autoPlay={true}
@@ -109,7 +109,7 @@ export default function LibraryPage() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold tracking-tight mb-4">Beğenilen Şarkılar</h2>
+        <h2 className="text-xl lg:text-2xl font-semibold tracking-tight mb-4">Beğenilen Şarkılar</h2>
         {favorites.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             Henüz beğenilen şarkı yok. Şarkılara kalp atarak buraya ekleyebilirsin!
@@ -160,7 +160,7 @@ export default function LibraryPage() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold tracking-tight mb-4">Son Dinlenenler</h2>
+        <h2 className="text-xl lg:text-2xl font-semibold tracking-tight mb-4">Son Dinlenenler</h2>
         {recentlyPlayed.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             Henüz dinlenen şarkı yok.
@@ -210,8 +210,8 @@ export default function LibraryPage() {
         )}
       </section>
 
-      {/* Alt Reklam Carousel */}
-      <section className="container py-8">
+      {/* Alt Reklam Carousel - Sadece desktop */}
+      <section className="container py-8 hidden lg:block">
         <AdCarousel
           variant="horizontal"
           autoPlay={true}

@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { 
+  saveUserPreferences, 
+  getUserPreferences, 
+  saveFavoriteSong, 
+  removeFavoriteSong, 
+  getFavoriteSongs, 
+  addRecentlyPlayedSong, 
+  getRecentlyPlayedSongs 
+} from '@/lib/auth';
 
+// Kullanıcı tercihlerini kaydet
 export async function POST(request: NextRequest) {
   try {
     const { userId, preferences } = await request.json();
@@ -9,21 +18,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Kullanıcı ID gerekli' }, { status: 400 });
     }
     
-    const { error } = await supabase
-      .from('users')
-      .update({ preferences })
-      .eq('id', userId);
-    
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    
-    return NextResponse.json({ success: true, message: 'Kullanıcı tercihleri kaydedildi.' });
+    const result = await saveUserPreferences(userId, preferences);
+    return NextResponse.json(result);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
+// Kullanıcı tercihlerini getir
 export async function GET(request: NextRequest) {
   try {
     const userId = request.nextUrl.searchParams.get('userId');
@@ -32,17 +34,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ preferences: { artists: [], genres: [] } });
     }
     
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('preferences')
-      .eq('id', userId)
-      .single();
-    
-    if (error || !user) {
-      return NextResponse.json({ preferences: { artists: [], genres: [] } });
-    }
-    
-    return NextResponse.json({ preferences: user.preferences || { artists: [], genres: [] } });
+    const preferences = await getUserPreferences(userId);
+    return NextResponse.json({ preferences });
   } catch (error: any) {
     return NextResponse.json({ preferences: { artists: [], genres: [] } });
   }

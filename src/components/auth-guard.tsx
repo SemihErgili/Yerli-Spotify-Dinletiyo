@@ -17,10 +17,20 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+    // Önce localStorage'dan kontrol et (Beni Hatırla için)
+    let currentUser = localStorage.getItem('currentUser');
+    
+    // Eğer localStorage'da yoksa sessionStorage'dan kontrol et
+    if (!currentUser) {
+      currentUser = sessionStorage.getItem('currentUser');
+    }
     
     if (currentUser) {
       setIsAuth(true);
+      // Eğer localStorage'da varsa, sessionStorage'a da kopyala (aktif oturum için)
+      if (localStorage.getItem('currentUser')) {
+        sessionStorage.setItem('currentUser', currentUser);
+      }
     } else {
       router.replace('/unauthorized');
     }
