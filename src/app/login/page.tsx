@@ -55,6 +55,10 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
+      // Beni hatırla durumunu localStorage'a kaydet
+      const rememberMe = form.getValues('rememberMe');
+      localStorage.setItem('google-remember-me', rememberMe.toString());
+      
       // Google OAuth URL'sine yönlendir
       const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
         `client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&` +

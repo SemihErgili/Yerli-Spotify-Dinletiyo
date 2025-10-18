@@ -14,8 +14,20 @@ function LoginSuccessContent() {
       try {
         const userData = JSON.parse(decodeURIComponent(userParam));
         
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        sessionStorage.setItem('currentUser', JSON.stringify(userData));
+        // Beni hatırla durumunu kontrol et
+        const rememberMe = localStorage.getItem('google-remember-me') === 'true';
+        
+        if (rememberMe) {
+          localStorage.setItem('currentUser', JSON.stringify(userData));
+          localStorage.setItem('rememberMe', 'true');
+        } else {
+          sessionStorage.setItem('currentUser', JSON.stringify(userData));
+          localStorage.removeItem('currentUser');
+          localStorage.removeItem('rememberMe');
+        }
+        
+        // Geçici flag'i temizle
+        localStorage.removeItem('google-remember-me');
         
         router.push('/home');
       } catch (error) {
